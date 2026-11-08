@@ -1,0 +1,489 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ------------------------------------------------------------------
+   Fonts — self-hosted latin subsets from the uploaded HTML (OFL 1.1).
+   Outfit and Syne ship as variable files (one file covers 400–700).
+   ------------------------------------------------------------------ */
+@font-face {
+  font-family: 'Gloock';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('../fonts/gloock-400-latin.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Outfit';
+  font-style: normal;
+  font-weight: 400 500;
+  font-display: swap;
+  src: url('../fonts/outfit-latin.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Syne';
+  font-style: normal;
+  font-weight: 600 700;
+  font-display: swap;
+  src: url('../fonts/syne-latin.woff2') format('woff2');
+}
+
+/* ------------------------------------------------------------------
+   Base — fluid layout tokens copied from the HTML root wrapper.
+   ------------------------------------------------------------------ */
+@layer base {
+  :root {
+    --accent: #885f52;
+    --gutter: clamp(20px, 6.95vw, 100px);
+    --section: clamp(72px, 8.4vw, 120px);
+    --stack: clamp(32px, 3.4vw, 48px);
+    --card: clamp(260px, 34.7vw, 500px);
+  }
+  html {
+    scroll-behavior: smooth;
+  }
+  html,
+  body {
+    line-height: normal; /* the source HTML relies on the UA default, not Preflight's 1.5 */
+  }
+  body {
+    margin: 0;
+    background: #f7f7f2;
+    font-family: 'Outfit', sans-serif;
+    color: #2b2523;
+  }
+  a {
+    color: #2b2523;
+    text-decoration: none;
+  }
+  @media (hover: hover) {
+    a:hover {
+      color: var(--accent);
+    }
+  }
+  :focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+/* ------------------------------------------------------------------
+   Components — only what Tailwind utilities can't express cleanly
+   (multi-step transitions, masks, pseudo-elements, JS-driven states).
+   ------------------------------------------------------------------ */
+@layer components {
+  /* layout */
+  .dd-wrap {
+    width: calc(100% - 2 * var(--gutter));
+    max-width: 1240px;
+    box-sizing: border-box;
+  }
+  #services,
+  #projects,
+  #testimonials,
+  #contact {
+    scroll-margin-top: 100px;
+  }
+
+  /* skip link (added for WCAG 2.4.1 — invisible until focused) */
+  .dd-skip {
+    position: absolute;
+    left: 16px;
+    top: -100px;
+    z-index: 100;
+    padding: 12px 20px;
+    border-radius: 999px;
+    background: #ffffff;
+    color: var(--accent);
+    font-weight: 500;
+    box-shadow: 0 10px 24px rgba(43, 37, 35, 0.18);
+  }
+  .dd-skip:focus {
+    top: 16px;
+  }
+
+  /* header */
+  .dd-header {
+    transition:
+      background-color 300ms ease-out,
+      box-shadow 300ms ease-out;
+  }
+  @media (min-width: 641px) {
+    .dd-header {
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      background: transparent;
+    }
+    .dd-header.is-scrolled {
+      background: rgba(247, 247, 242, 0.52);
+      -webkit-backdrop-filter: blur(14px);
+      backdrop-filter: blur(14px);
+      box-shadow: 0 1px 0 rgba(43, 37, 35, 0.08);
+    }
+  }
+  .dd-nav {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    column-gap: clamp(20px, 3.4vw, 48px);
+  }
+  .dd-nav a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+  }
+  .dd-burger {
+    display: none;
+    transition: background-color 300ms ease-out;
+  }
+  @media (max-width: 640px) {
+    .dd-burger {
+      display: inline-flex;
+    }
+    .dd-nav {
+      display: none;
+      position: absolute;
+      top: calc(100% - 8px);
+      left: var(--gutter);
+      right: var(--gutter);
+      z-index: 60;
+      flex-direction: column;
+      align-items: stretch;
+      padding: 8px;
+      background: #ffffff;
+      border: 1px solid #ede4df;
+      border-radius: 20px;
+      box-shadow: 0 18px 40px rgba(43, 37, 35, 0.16);
+    }
+    .dd-nav.is-open {
+      display: flex;
+    }
+    .dd-nav a {
+      min-height: 48px;
+      padding: 0 16px;
+      border-radius: 12px;
+      font-size: 17px;
+    }
+    .dd-nav a:hover {
+      background: #f7f2ef;
+    }
+  }
+
+  /* CTA buttons — arrow slides in on hover/focus */
+  .dd-cta {
+    transition:
+      box-shadow 500ms cubic-bezier(0.22, 1, 0.36, 1),
+      transform 500ms cubic-bezier(0.22, 1, 0.36, 1),
+      background-color 300ms ease-out;
+    will-change: transform;
+  }
+  .dd-cta-arrow {
+    display: inline-flex;
+    width: 0;
+    margin-left: 0;
+    opacity: 0;
+    transform: translateX(-10px);
+    overflow: hidden;
+    will-change: width, transform, opacity;
+    transition:
+      width 550ms cubic-bezier(0.22, 1, 0.36, 1),
+      margin-left 550ms cubic-bezier(0.22, 1, 0.36, 1),
+      transform 550ms cubic-bezier(0.22, 1, 0.36, 1),
+      opacity 250ms ease-out;
+  }
+  .dd-cta:focus-visible {
+    box-shadow: 0 12px 28px rgba(43, 37, 35, 0.2);
+    transform: translateY(-1px);
+    outline: 2px solid #ffffff;
+    outline-offset: 3px;
+  }
+  .dd-cta:focus-visible .dd-cta-arrow {
+    width: 20px;
+    margin-left: 10px;
+    opacity: 1;
+    transform: translateX(0);
+    transition:
+      width 550ms cubic-bezier(0.22, 1, 0.36, 1),
+      margin-left 550ms cubic-bezier(0.22, 1, 0.36, 1),
+      transform 550ms cubic-bezier(0.22, 1, 0.36, 1) 60ms,
+      opacity 400ms ease-out 120ms;
+  }
+  .dd-cta-solid:focus-visible {
+    outline-color: var(--accent);
+  }
+  @media (hover: hover) {
+    .dd-cta:hover {
+      box-shadow: 0 12px 28px rgba(43, 37, 35, 0.2);
+      transform: translateY(-1px);
+    }
+    .dd-cta:hover .dd-cta-arrow {
+      width: 20px;
+      margin-left: 10px;
+      opacity: 1;
+      transform: translateX(0);
+      transition:
+        width 550ms cubic-bezier(0.22, 1, 0.36, 1),
+        margin-left 550ms cubic-bezier(0.22, 1, 0.36, 1),
+        transform 550ms cubic-bezier(0.22, 1, 0.36, 1) 60ms,
+        opacity 400ms ease-out 120ms;
+    }
+  }
+
+  /* ticker */
+  .dd-marquee {
+    will-change: transform;
+  }
+  .dd-ticker-toggle {
+    transition: background-color 300ms ease-out;
+  }
+  .dd-ticker-toggle:focus-visible {
+    outline-color: #ffffff;
+    outline-offset: -6px;
+  }
+
+
+  /* gallery */
+  .dd-gallery-mask {
+    -webkit-mask-image:
+      radial-gradient(50% clamp(28px, 6.25vw, 90px) at 50% 0%, transparent 98%, #000 100%),
+      radial-gradient(50% clamp(28px, 6.25vw, 90px) at 50% 100%, transparent 98%, #000 100%);
+    -webkit-mask-composite: source-in;
+    mask-image:
+      radial-gradient(50% clamp(28px, 6.25vw, 90px) at 50% 0%, transparent 98%, #000 100%),
+      radial-gradient(50% clamp(28px, 6.25vw, 90px) at 50% 100%, transparent 98%, #000 100%);
+    mask-composite: intersect;
+  }
+  .dd-scroll {
+    gap: 16px;
+    padding-left: calc(50% - var(--card) / 2);
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .dd-scroll::-webkit-scrollbar {
+    display: none;
+  }
+  .dd-scroll:focus-visible {
+    outline: none;
+  }
+  .dd-scroll-end {
+    flex: 0 0 calc(50% - var(--card) / 2 - 16px);
+    height: 1px;
+  }
+  .dd-card {
+    position: relative;
+    flex: 0 0 var(--card);
+    width: var(--card);
+    height: var(--card);
+  }
+  .dd-scroll:focus-visible .dd-card.is-center {
+    outline: 3px solid var(--accent);
+    outline-offset: 4px;
+  }
+  @media (min-width: 641px) and (hover: hover) {
+    .dd-card {
+      transition:
+        transform 550ms cubic-bezier(0.22, 1, 0.36, 1),
+        box-shadow 550ms cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .dd-card:hover,
+    .dd-card:active {
+      transform: scale(1.05);
+      z-index: 2;
+      box-shadow: 0 22px 44px rgba(43, 37, 35, 0.24);
+    }
+  }
+  .dd-card-cap {
+    display: none;
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 50%;
+    align-items: flex-end;
+    box-sizing: border-box;
+    padding: 0 clamp(20px, 2vw, 28px) clamp(18px, 1.8vw, 24px);
+    margin: 0;
+    background: linear-gradient(
+      to top,
+      rgba(20, 14, 12, 0.78) 0%,
+      rgba(20, 14, 12, 0.35) 55%,
+      rgba(20, 14, 12, 0) 100%
+    );
+    pointer-events: none;
+    font-family: 'Outfit', sans-serif;
+    font-size: clamp(16px, 1.3vw, 20px);
+    font-weight: 500;
+    line-height: 1.3;
+    letter-spacing: 0.01em;
+    color: #ffffff;
+    text-align: left;
+  }
+  @media (max-width: 640px), (hover: none) {
+    .dd-card-cap {
+      display: flex;
+    }
+    .dd-pill {
+      display: none;
+    }
+    .dd-card,
+    .dd-card:hover,
+    .dd-card:active {
+      transform: scale(0.88);
+      box-shadow: none;
+      z-index: 0;
+      transition: none !important;
+    }
+    .dd-card.is-center,
+    .dd-card.is-center:hover,
+    .dd-card.is-center:active {
+      transform: scale(1);
+      z-index: 1;
+      box-shadow: 0 16px 32px rgba(43, 37, 35, 0.18);
+    }
+    .dd-card.is-before {
+      transform-origin: 100% 50%;
+    }
+    .dd-card.is-after {
+      transform-origin: 0% 50%;
+    }
+    .dd-scroll {
+      gap: 12px;
+    }
+    .dd-scroll-end {
+      flex-basis: calc(50% - var(--card) / 2 - 12px);
+    }
+  }
+
+  /* cursor pill */
+  .dd-pill {
+    transform: translate(-50%, -50%);
+  }
+  .dd-pill-inner {
+    transform-origin: 50% 50%;
+    transition:
+      opacity 300ms cubic-bezier(0.76, 0, 0.24, 1),
+      transform 400ms cubic-bezier(0.76, 0, 0.24, 1);
+    opacity: 0;
+    transform: scale(0);
+  }
+  .dd-pill.is-visible .dd-pill-inner {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  /* carousel arrows */
+  .dd-arrow {
+    transition:
+      background-color 300ms ease-out,
+      color 300ms ease-out,
+      opacity 300ms ease-out,
+      transform 450ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .dd-arrow:disabled {
+    opacity: 0.35;
+    cursor: default;
+  }
+
+  /* floating actions */
+  .dd-fabs {
+    right: calc(24px + env(safe-area-inset-right));
+    bottom: calc(24px + env(safe-area-inset-bottom));
+  }
+  @media (max-width: 640px) {
+    .dd-fabs {
+      right: calc(16px + env(safe-area-inset-right));
+      bottom: calc(16px + env(safe-area-inset-bottom));
+    }
+  }
+  .dd-wa-label {
+    position: relative;
+    opacity: 0;
+    transform: translateX(8px);
+    pointer-events: none;
+    transition:
+      opacity 150ms ease-out,
+      transform 150ms ease-out;
+  }
+  .dd-wa-label::after {
+    content: '';
+    position: absolute;
+    right: -5px;
+    top: 50%;
+    width: 10px;
+    height: 10px;
+    background: #ffffff;
+    transform: translateY(-50%) rotate(45deg);
+    border-radius: 2px;
+  }
+  .dd-wa:hover .dd-wa-label,
+  .dd-wa:focus-within .dd-wa-label {
+    opacity: 1;
+    transform: translateX(0);
+    pointer-events: auto;
+    transition:
+      opacity 350ms cubic-bezier(0.22, 1, 0.36, 1) 60ms,
+      transform 450ms cubic-bezier(0.22, 1, 0.36, 1) 60ms;
+  }
+  @media (hover: none) {
+    .dd-wa-label {
+      display: none;
+    }
+  }
+  .dd-wa-fab {
+    position: relative;
+    transition:
+      transform 450ms cubic-bezier(0.22, 1, 0.36, 1),
+      box-shadow 450ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .dd-wa-fab::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    box-shadow: 0 0 0 0 rgba(37, 211, 102, 0.45);
+    animation: dd-pulse 1.8s ease-out 5s 2;
+  }
+  @keyframes dd-pulse {
+    0% {
+      box-shadow: 0 0 0 0 rgba(37, 211, 102, 0.45);
+    }
+    100% {
+      box-shadow: 0 0 0 18px rgba(37, 211, 102, 0);
+    }
+  }
+  .dd-wa:hover .dd-wa-fab {
+    transform: translateY(-2px);
+  }
+  .dd-top {
+    transition:
+      opacity 400ms cubic-bezier(0.22, 1, 0.36, 1),
+      transform 400ms cubic-bezier(0.22, 1, 0.36, 1),
+      box-shadow 400ms ease-out;
+  }
+  .dd-top.is-hidden {
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(12px);
+  }
+  .dd-top-arrow {
+    transition: transform 350ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .dd-top:hover .dd-top-arrow,
+  .dd-top:focus-visible .dd-top-arrow {
+    transform: translateY(-3px);
+  }
+}
