@@ -1,0 +1,10 @@
+# deps
+node_modules/
+vendor/
+# tests
+test-results/
+playwright-report/
+# env / OS
+.env
+.DS_Store
+.php-cs-fixer.cache
